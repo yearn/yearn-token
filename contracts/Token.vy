@@ -77,6 +77,7 @@ def _burn(_sender: address, _amount: uint256):
 
 @internal
 def _transfer(_sender: address, _receiver: address, _amount: uint256):
+    assert not _receiver in [self, ZERO_ADDRESS]
     self.balanceOf[_sender] -= _amount
     self.balanceOf[_receiver] += _amount
     log Transfer(_sender, _receiver, _amount)
