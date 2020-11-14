@@ -6,7 +6,7 @@ implements: ERC20
 
 
 interface FlashMinter:
-    def executeAndReturn(amount: uint256, fee: uint256): nonpayable
+    def executeAndReturn(amount: uint256, fee: uint256, data: Bytes[1028]): nonpayable
 
 
 event Transfer:
@@ -120,10 +120,10 @@ def decreaseAllowance(_spender: address, _amount: uint256) -> bool:
 
 
 @external
-def flashMint(_amount: uint256) -> bool:
+def flashMint(_amount: uint256, _data: Bytes[1028] = b"") -> bool:
     self._mint(msg.sender, _amount)
     fee: uint256 = 100 * _amount / 10000  # 1%
-    FlashMinter(msg.sender).executeAndReturn(_amount, fee)
+    FlashMinter(msg.sender).executeAndReturn(_amount, fee, _data)
     self._burn(msg.sender, _amount)
     self._transfer(msg.sender, self.treasury, fee)
     return True
