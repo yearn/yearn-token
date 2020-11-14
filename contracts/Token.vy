@@ -125,5 +125,5 @@ def flashMint(_amount: uint256) -> bool:
     fee: uint256 = 100 * _amount / 10000  # 1%
     FlashMinter(msg.sender).executeAndReturn(_amount, fee)
     self._burn(msg.sender, _amount)
-    self._transfer(self, self.treasury, fee)
+    self._transfer(msg.sender, self.treasury, fee)
     return True
