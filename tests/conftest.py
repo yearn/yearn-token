@@ -3,12 +3,12 @@ import pytest
 
 @pytest.fixture
 def deployer(a):
-    yield a[-2]
+    yield a[-1]
 
 
 @pytest.fixture
 def treasury(a):
-    yield a[-1]
+    yield a[-2]
 
 
 @pytest.fixture
