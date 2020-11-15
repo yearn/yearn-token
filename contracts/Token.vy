@@ -66,8 +66,11 @@ def decimals() -> uint256:
 
 @internal
 def _mint(_receiver: address, _amount: uint256):
+    assert not _receiver in [self, ZERO_ADDRESS]
+
     self.balanceOf[_receiver] += _amount
     self.totalSupply += _amount
+
     log Transfer(ZERO_ADDRESS, _receiver, _amount)
 
 
@@ -75,14 +78,17 @@ def _mint(_receiver: address, _amount: uint256):
 def _burn(_sender: address, _amount: uint256):
     self.balanceOf[_sender] -= _amount
     self.totalSupply -= _amount
+
     log Transfer(_sender, ZERO_ADDRESS, _amount)
 
 
 @internal
 def _transfer(_sender: address, _receiver: address, _amount: uint256):
     assert not _receiver in [self, ZERO_ADDRESS]
+
     self.balanceOf[_sender] -= _amount
     self.balanceOf[_receiver] += _amount
+
     log Transfer(_sender, _receiver, _amount)
 
 
