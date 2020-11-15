@@ -31,11 +31,13 @@ TOTAL_SUPPLY: constant(uint256) = 30_000 * 10 ** DECIMALS
 
 
 @external
-def __init__(_distribution: address, _treasury: address):
-    self.treasury = _treasury
-    self.balanceOf[_distribution] = TOTAL_SUPPLY
+def __init__():
+    self.treasury = msg.sender
+
+    self.balanceOf[msg.sender] = TOTAL_SUPPLY
     self.totalSupply = TOTAL_SUPPLY
-    log Transfer(ZERO_ADDRESS, _distribution, TOTAL_SUPPLY)
+
+    log Transfer(ZERO_ADDRESS, msg.sender, TOTAL_SUPPLY)
 
 
 @external
