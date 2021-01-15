@@ -6,7 +6,13 @@ implements: ERC20
 
 
 interface FlashMinter:
-    def executeAndReturn(amount: uint256, fee: uint256, data: Bytes[1028]): nonpayable
+    def executeAndReturn(
+        sender: address,
+        token: address,
+        amount: uint256,
+        fee: uint256,
+        data: Bytes[1028],
+    ): nonpayable
 
 MIN_FLASHMINT_AMOUNT: constant(uint256) = 100
 
@@ -129,12 +135,34 @@ def decreaseAllowance(spender: address, amount: uint256) -> bool:
 
 
 @external
-def flashMint(amount: uint256, data: Bytes[1028] = b"") -> bool:
+def maxFlashAmount(token: address) -> uint256:
+    if token != self:
+        return 0  # unsupported
+    else:
+        return MAX_UINT256 - self.totalSupply
+
+
+@view
+@internal
+def _flashFee(amount: uint256) -> uint256:
+    return 100 * amount / 10000  # 1%
+
+
+@view
+@external
+def flashFee(token: address, amount: uint256) -> uint256:
+    assert token == self  # dev: Not YFI Token
+    return self._flashFee(amount)
+
+
+@external
+def flashMint(receiver: address, token: address, amount: uint256, data: Bytes[1028] = b"") -> bool:
+    assert token == self  # dev: Not YFI Token
     assert amount >= MIN_FLASHMINT_AMOUNT  # dev: Insufficient amount
     assert self.totalSupply == TOTAL_SUPPLY  # dev: Can't already be flash minting
     self._mint(msg.sender, amount)
-    fee: uint256 = 100 * amount / 10000  # 1%
-    FlashMinter(msg.sender).executeAndReturn(amount, fee, data)
+    fee: uint256 = self._flashFee(amount)
+    FlashMinter(receiver).executeAndReturn(msg.sender, token, amount, fee, data)
     self._burn(msg.sender, amount)
     self._transfer(msg.sender, self.treasury, fee)
     assert self.totalSupply == TOTAL_SUPPLY  # dev: Can't create new supply from flash minting
