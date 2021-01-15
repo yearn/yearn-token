@@ -1,4 +1,4 @@
-# @version 0.2.7
+# @version 0.2.8
 
 from vyper.interfaces import ERC20
 
@@ -41,9 +41,9 @@ def __init__():
 
 
 @external
-def setTreasury(_treasury: address):
+def setTreasury(treasury: address):
     assert msg.sender == self.treasury
-    self.treasury = _treasury
+    self.treasury = treasury
 
 
 @view
@@ -65,77 +65,77 @@ def decimals() -> uint256:
 
 
 @internal
-def _mint(_receiver: address, _amount: uint256):
-    assert not _receiver in [self, ZERO_ADDRESS]
+def _mint(receiver: address, amount: uint256):
+    assert not receiver in [self, ZERO_ADDRESS]
 
-    self.balanceOf[_receiver] += _amount
-    self.totalSupply += _amount
+    self.balanceOf[receiver] += amount
+    self.totalSupply += amount
 
-    log Transfer(ZERO_ADDRESS, _receiver, _amount)
-
-
-@internal
-def _burn(_sender: address, _amount: uint256):
-    self.balanceOf[_sender] -= _amount
-    self.totalSupply -= _amount
-
-    log Transfer(_sender, ZERO_ADDRESS, _amount)
+    log Transfer(ZERO_ADDRESS, receiver, amount)
 
 
 @internal
-def _transfer(_sender: address, _receiver: address, _amount: uint256):
-    assert not _receiver in [self, ZERO_ADDRESS]
+def _burn(sender: address, amount: uint256):
+    self.balanceOf[sender] -= amount
+    self.totalSupply -= amount
 
-    self.balanceOf[_sender] -= _amount
-    self.balanceOf[_receiver] += _amount
+    log Transfer(sender, ZERO_ADDRESS, amount)
 
-    log Transfer(_sender, _receiver, _amount)
+
+@internal
+def _transfer(sender: address, receiver: address, amount: uint256):
+    assert not receiver in [self, ZERO_ADDRESS]
+
+    self.balanceOf[sender] -= amount
+    self.balanceOf[receiver] += amount
+
+    log Transfer(sender, receiver, amount)
 
 
 @external
-def transfer(_receiver: address, _amount: uint256) -> bool:
-    self._transfer(msg.sender, _receiver, _amount)
+def transfer(receiver: address, amount: uint256) -> bool:
+    self._transfer(msg.sender, receiver, amount)
     return True
 
 
 @external
-def transferFrom(_sender: address, _receiver: address, _amount: uint256) -> bool:
-    self.allowance[_sender][msg.sender] -= _amount
-    self._transfer(_sender, _receiver, _amount)
+def transferFrom(sender: address, receiver: address, amount: uint256) -> bool:
+    self.allowance[sender][msg.sender] -= amount
+    self._transfer(sender, receiver, amount)
     return True
 
 
 @external
-def approve(_spender: address, _amount: uint256) -> bool:
-    self.allowance[msg.sender][_spender] = _amount
-    log Approval(msg.sender, _spender, _amount)
+def approve(spender: address, amount: uint256) -> bool:
+    self.allowance[msg.sender][spender] = amount
+    log Approval(msg.sender, spender, amount)
     return True
 
 
 @external
-def increaseAllowance(_spender: address, _amount: uint256) -> bool:
-    allowance: uint256 = self.allowance[msg.sender][_spender] + _amount
-    self.allowance[msg.sender][_spender] = allowance
-    log Approval(msg.sender, _spender, allowance)
+def increaseAllowance(spender: address, amount: uint256) -> bool:
+    allowance: uint256 = self.allowance[msg.sender][spender] + amount
+    self.allowance[msg.sender][spender] = allowance
+    log Approval(msg.sender, spender, allowance)
     return True
 
 
 @external
-def decreaseAllowance(_spender: address, _amount: uint256) -> bool:
-    allowance: uint256 = self.allowance[msg.sender][_spender] - _amount
-    self.allowance[msg.sender][_spender] = allowance
-    log Approval(msg.sender, _spender, allowance)
+def decreaseAllowance(spender: address, amount: uint256) -> bool:
+    allowance: uint256 = self.allowance[msg.sender][spender] - amount
+    self.allowance[msg.sender][spender] = allowance
+    log Approval(msg.sender, spender, allowance)
     return True
 
 
 @external
-def flashMint(_amount: uint256, _data: Bytes[1028] = b"") -> bool:
-    assert _amount >= MIN_FLASHMINT_AMOUNT  # dev: Insufficient amount
+def flashMint(amount: uint256, data: Bytes[1028] = b"") -> bool:
+    assert amount >= MIN_FLASHMINT_AMOUNT  # dev: Insufficient amount
     assert self.totalSupply == TOTAL_SUPPLY  # dev: Can't already be flash minting
-    self._mint(msg.sender, _amount)
-    fee: uint256 = 100 * _amount / 10000  # 1%
-    FlashMinter(msg.sender).executeAndReturn(_amount, fee, _data)
-    self._burn(msg.sender, _amount)
+    self._mint(msg.sender, amount)
+    fee: uint256 = 100 * amount / 10000  # 1%
+    FlashMinter(msg.sender).executeAndReturn(amount, fee, data)
+    self._burn(msg.sender, amount)
     self._transfer(msg.sender, self.treasury, fee)
     assert self.totalSupply == TOTAL_SUPPLY  # dev: Can't create new supply from flash minting
     return True
