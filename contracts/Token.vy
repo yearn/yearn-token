@@ -33,7 +33,7 @@ balanceOf: public(HashMap[address, uint256])
 totalSupply: public(uint256)
 
 DECIMALS: constant(uint256) = 18
-TOTAL_SUPPLY: constant(uint256) = 30_000 * 10 ** DECIMALS
+TOTAL_SUPPLY: constant(uint256) = 36_666 * 10 ** DECIMALS
 
 
 @external
