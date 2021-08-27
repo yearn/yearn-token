@@ -4,7 +4,7 @@ pragma solidity 0.6.12;
 import "@openzeppelinV3/contracts/token/ERC20/IERC20.sol";
 
 interface IFlashMint is IERC20 {
-    function flashLoan(address _reciever, address _token, uint256 _amount bytes calldata _data) external returns (bool);
+    function flashLoan(address _reciever, address _token, uint256 _amount, bytes calldata _data) external returns (bool);
 }
 
 contract FlashMob {
