@@ -34,11 +34,11 @@ contract FlashMob {
     function onFlashLoan(address _initaitor, address _token, uint256 _amount, uint256 _fee, bytes calldata _data) external {
         require(keccak256(_data) == keccak256(callData), "!callback data mismatch");
 
-        if (keccak256(_data) == keccak256("call twice")) token.flashMint(_amount);
+        if (keccak256(_data) == keccak256("call twice")) token.flashLoan(address(this), address(token), _amount, "");
 
         if (keccak256(_data) == keccak256("reentrancy") && callDepth > 0) {
             callDepth -= 1;
-            token.flashMint(_amount, "reentrancy");
+            token.flashLoan(address(this), address(token), _amount, "reentrancy");
         }
     }
 }
