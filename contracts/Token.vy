@@ -6,7 +6,7 @@ implements: ERC20
 
 
 interface FlashMinter:
-    def executeAndReturn(
+    def onFlashLoan(
         sender: address,
         token: address,
         amount: uint256,
@@ -162,7 +162,7 @@ def flashMint(receiver: address, token: address, amount: uint256, data: Bytes[10
     assert self.totalSupply == TOTAL_SUPPLY  # dev: Can't already be flash minting
     self._mint(msg.sender, amount)
     fee: uint256 = self._flashFee(amount)
-    FlashMinter(receiver).executeAndReturn(msg.sender, token, amount, fee, data)
+    FlashMinter(receiver).onFlashLoan(msg.sender, token, amount, fee, data)
     self._burn(msg.sender, amount)
     self._transfer(msg.sender, self.treasury, fee)
     assert self.totalSupply == TOTAL_SUPPLY  # dev: Can't create new supply from flash minting
