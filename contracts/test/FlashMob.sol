@@ -4,8 +4,7 @@ pragma solidity 0.6.12;
 import "@openzeppelinV3/contracts/token/ERC20/IERC20.sol";
 
 interface IFlashMint is IERC20 {
-    function flashMint(uint256 _amount) external returns (bool);
-    function flashMint(uint256 _amount, bytes calldata _data) external returns (bool);
+    function flashLoan(address _reciever, address _token, uint256 _amount bytes calldata _data) external returns (bool);
 }
 
 contract FlashMob {
@@ -23,16 +22,16 @@ contract FlashMob {
     function callNormal(uint256 _amount) external {
         callData = "";
         // INVARIANT: Will fail if contract doesn't have 1% of _amount
-        token.flashMint(_amount);
+        token.flashLoan(address(this), address(token), _amount, "");
     }
 
     function callWithData(uint256 _amount, bytes calldata data) external {
         callData = data;
         // INVARIANT: Will fail if contract doesn't have 1% of _amount
-        token.flashMint(_amount, data);
+        token.flashLoan(address(this), address(token), _amount, data);
     }
-
-    function executeAndReturn(uint256 _amount, uint256 _fee, bytes calldata _data) external {
+    
+    function onFlashLoan(address _initaitor, address _token, uint256 _amount, uint256 _fee, bytes calldata _data) external {
         require(keccak256(_data) == keccak256(callData), "!callback data mismatch");
 
         if (keccak256(_data) == keccak256("call twice")) token.flashMint(_amount);
